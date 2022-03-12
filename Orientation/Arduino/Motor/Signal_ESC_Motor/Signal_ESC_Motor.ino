@@ -20,4 +20,3 @@ void loop() {
   Serial.println(controllerValue);
   ESC.write(controllerValue);    // Send the signal to the ESC
 }
-
