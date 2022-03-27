@@ -1,19 +1,13 @@
-#define fromLow 900
-#define fromHigh 1900
-#define toLow 1000
-#define toHigh 2000
 
-#define esc_pin 6
-#define servo_pin 5
 
-byte last_roll, last_channel_2, last_channel_3, last_channel_4, last_channel_5;
+byte last_channel_1, last_channel_2, last_channel_3, last_channel_4, last_channel_5;
 int roll, pitch, throttle, yaw, type;
 int esc, servo;
 unsigned long timer_roll, timer_channel_2, timer_channel_3, timer_channel_4, timer_channel_5;
 unsigned long timer_1, timer_2, timer_3, timer_4, timer_5, current_time;
 
  
-void setup ()
+void setup()
 {
 
   
@@ -29,7 +23,7 @@ void setup ()
   Serial.begin(9600);
 }
 
-void loop ()
+void loop()
 {
 
 // debug
@@ -51,21 +45,20 @@ void loop ()
 }
 
 
-ISR(PCINT2_vect)
-{
+ISR(PCINT2_vect){
   current_time = micros();
   //Channel 1=========================================
   if(PINK & B00000001)
   {                                        //Is input 8 high?
-  if(last_roll == 0)
+  if(last_channel_1 == 0)
   {                                   //Input 8 changed from 0 to 1
-    last_roll = 1;                                      //Remember current input state
+    last_channel_1 = 1;                                      //Remember current input state
     timer_1 = current_time;                                  //Set timer_1 to current_time
   }
   }
-  else if(last_roll == 1)
+  else if(last_channel_1 == 1)
   {                                //Input 8 is not high and changed from 1 to 0
-    last_roll = 0;                                        //Remember current input state
+    last_channel_1 = 0;                                        //Remember current input state
     roll = current_time - timer_1;         //Channel 1 is current_time - timer_1
   }
   //Channel 2=========================================

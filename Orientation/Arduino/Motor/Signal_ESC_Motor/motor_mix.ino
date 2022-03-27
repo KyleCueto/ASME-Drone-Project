@@ -43,8 +43,8 @@ void setup() {
 
 
 void loop() {
-    throttle = pulseIn(3, HIGH);
-    roll = pulseIn(3, HIGH);
+    //throttle = pulseIn(3, HIGH);
+    //roll = pulseIn(3, HIGH);
 
 
     // Motor Mixing Algorithm  TODO: Add PID inputs to this
@@ -66,5 +66,5 @@ void loop() {
     ESC4.write(m4);
 
     // Print Motor Values
-    Serial.println(m1, m2, m3, m4);
+    //Serial.println(m1, m2, m3, m4);
 }
