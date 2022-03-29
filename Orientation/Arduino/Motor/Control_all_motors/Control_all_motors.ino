@@ -29,14 +29,20 @@ byte last_channel_1, last_channel_2, last_channel_3, last_channel_4, last_channe
 unsigned long timer_roll, timer_channel_2, timer_channel_3, timer_channel_4, timer_channel_5;
 unsigned long timer_1, timer_2, timer_3, timer_4, timer_5, current_time;
 
- 
+
 void setup ()
 {
   // ESC Signal Pins (pin, min pulse width, max pulse width in microseconds)
-  ESC1.attach(9,1000,2000);  // ESC1 for Motor 1
-  ESC2.attach(10,1000,2000); // ESC2 for Motor 2
-  ESC3.attach(11,1000,2000); // ESC3 for Motor 3
-  ESC4.attach(12,1000,2000); // ESC4 for Motor 4
+  //ESC1.attach(9,1000,2000);  // ESC1 for Motor 1
+  //ESC2.attach(10,1000,2000); // ESC2 for Motor 2
+  //ESC3.attach(11,1000,2000); // ESC3 for Motor 3
+  //ESC4.attach(12,1000,2000); // ESC4 for Motor 4
+
+  // Test LEDs
+  pinMode(9, OUTPUT);
+  pinMode(10, OUTPUT);
+  pinMode(11, OUTPUT);
+  pinMode(12, OUTPUT);
   
   //Set PCIE0 to enable PCMSK2 scan.
   PCICR |= (1 << PCIE2);
@@ -53,7 +59,47 @@ void setup ()
 void loop ()
 {
 
+  
+
+  // Motor Mixing Algorithm  TODO: Add PID inputs to this
+  //throttle = throttle - 1000;
+  //throttle = map(throttle, 1000, 2000, 0, 180);
+  
+  //roll = roll - 1500;
+  //roll = map(roll, 900, 2000, 0, 180);
+  
+  //pitch = pitch - 1500;
+  //pitch = map(pitch, 900, 2000, 0, 180);
+
+  //yaw = yaw - 1500;
+  //yaw = map(yaw, 900, 2000, 0, 180);
+  
+  motor1 = throttle + yaw + pitch + roll;
+  motor2 = throttle - yaw + pitch - roll;
+  motor3 = throttle - yaw - pitch + roll;
+  motor4 = throttle + yaw - pitch - roll;
+
+  // Scale values to write to ESC
+  m1 = map(motor1, 0, 2000, 0, 180);
+  m2 = map(motor2, 0, 2000, 0, 180);
+  m3 = map(motor3, 0, 2000, 0, 180);
+  m4 = map(motor4, 0, 2000, 0, 180);
+
+  // Write values to ESC
+  //ESC1.write(m1);
+  //ESC2.write(m2);
+  //ESC3.write(m3);
+  //ESC4.write(m4);
+
+  //Test LEDs
+  analogWrite(9, m1);
+  analogWrite(10, m2);
+  analogWrite(11, m3);
+  analogWrite(12, m4);
+
   // debug
+
+  /*/ Debug reciever inputs
   Serial.print("roll = ");
   Serial.print(roll);
   Serial.print(" - ");
@@ -67,27 +113,23 @@ void loop ()
   Serial.print(yaw);
   Serial.print(" - ");
   Serial.print("type = ");
-  Serial.println(type);
-
-  // Motor Mixing Algorithm  TODO: Add PID inputs to this
-  motor1 = throttle + roll + pitch + yaw;
-  motor2 = throttle - roll + pitch - yaw;
-  motor3 = throttle - roll - pitch + yaw;
-  motor4 = throttle + roll - pitch - yaw;
-
-  // Scale values to write to ESC
-  m1 = map(motor1, 1000, 2000, 0, 180);
-  m2 = map(motor2, 1000, 2000, 0, 180);
-  m3 = map(motor3, 1000, 2000, 0, 180);
-  m4 = map(motor4, 1000, 2000, 0, 180);
-
-  // Write values to ESC
-  //ESC1.write(m1);
-  //ESC2.write(m2);
-  //ESC3.write(m3);
-  //ESC4.write(m4);
-  /*
-  // debug motors
+  Serial.print(type);*/
+  
+  // debug motor mixing
+  Serial.print("Motor 1 = ");
+  Serial.print(motor1);
+  Serial.print(" - ");
+  Serial.print("Motor 2 = ");
+  Serial.print(motor2);
+  Serial.print(" - ");
+  Serial.print("Motor 3 = ");
+  Serial.print(motor3);
+  Serial.print(" - ");
+  Serial.print("Motor 4 = ");
+  Serial.println(motor4);
+  
+  
+  /*// debug motor pwm signal
   Serial.print("Motor 1 = ");
   Serial.print(m1);
   Serial.print(" - ");
@@ -120,6 +162,7 @@ ISR(PCINT2_vect)
   {                                //Input 8 is not high and changed from 1 to 0
     last_channel_1 = 0;                                        //Remember current input state
     roll = current_time - timer_1;         //Channel 1 is current_time - timer_1
+    roll = map(roll, 1000, 2000, 0, 180)-90;
   }
   //Channel 2=========================================
   if(PINK & B00000010 )
@@ -134,6 +177,7 @@ ISR(PCINT2_vect)
   {                                //Input 9 is not high and changed from 1 to 0
     last_channel_2 = 0;                                        //Remember current input state
     pitch = current_time - timer_2;         //Channel 2 is current_time - timer_2
+    pitch = map(pitch, 1000, 2000, 0, 180)-90;
   }
   //Channel 3=========================================
   if(PINK & B00000100 )
@@ -148,7 +192,7 @@ ISR(PCINT2_vect)
   {                                //Input 10 is not high and changed from 1 to 0
     last_channel_3 = 0;                                        //Remember current input state
     throttle = current_time - timer_3;         //Channel 3 is current_time - timer_3
-
+    throttle = map(throttle, 1000, 2000, 0, 180);
   }
   //Channel 4=========================================
   if(PINK & B00001000 )
@@ -163,6 +207,7 @@ ISR(PCINT2_vect)
   {                                //Input 11 is not high and changed from 1 to 0
     last_channel_4 = 0;                                        //Remember current input state
     yaw = current_time - timer_4;         //Channel 4 is current_time - timer_4
+    yaw = map(yaw, 1000, 2000, 0, 180)-90;
   }
   //Channel 5=========================================
   if(PINK & B00010000)
